@@ -47,7 +47,7 @@ class AddWords {
             result = "unknown";
         }
 
-        System.out.println(String.join(" ", procedure) + " " + result.trim());
+        System.out.println(String.join(" ", procedure) + " " + result);
 
     }
 
@@ -62,18 +62,17 @@ class AddWords {
         commands.put("clear", AddWords::clearCommand);
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
         try (Scanner sc = new Scanner(System.in)) {
             while (sc.hasNext()) {
 
                 String input = sc.nextLine();
 
-                if (input == null) {
-                    continue;
-                }
-
-                if (input.equalsIgnoreCase("exit")) {
+                if (
+                    input == null ||
+                    input.isEmpty()
+                ) {
                     sc.close();
                     break;
                 }
