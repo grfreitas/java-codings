@@ -1,21 +1,24 @@
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
+import java.util.function.Consumer;
 
 class AddWords {
 
-    public static Map<String, Integer> map = new HashMap<String, Integer>();
-    public static Map<Integer, String> inverse_map = new HashMap<Integer, String>();
+    static Map<String, Integer> map = new HashMap<>();
+    static Map<Integer, String> inverseMap = new HashMap<>();
+    static Map<String, Consumer<String>> commands = new HashMap<>(); 
 
-    public static void defCommand(String input){
+    static void defCommand(String input){
         String key = input.split("\\s+")[1];
         Integer value = Integer.parseInt(input.split("\\s+")[2]);
         map.put(key, value);
-        inverse_map.put(value, key);
+        inverseMap.put(value, key);
     }
 
-    public static void calcCommand(String input){
+    static void calcCommand(String input){
         String[] aux = input.split("\\s+");
         String[] procedure = Arrays.copyOfRange(aux, 1, aux.length);
         String result;
@@ -38,34 +41,52 @@ class AddWords {
             }
         }
 
-        if (inverse_map.containsKey(value)) {
-            result = inverse_map.get(value);
+        if (inverseMap.containsKey(value)) {
+            result = inverseMap.get(value);
         } else {
             result = "unknown";
         }
 
-        System.out.println(String.join(" ", procedure) + " " + result);
+        System.out.println(String.join(" ", procedure) + " " + result.trim());
 
     }
 
-    public static void clearCommand(){
-        map = new HashMap<String, Integer>();
-        inverse_map = new HashMap<Integer, String>();
+    static void clearCommand(String input){
+        AddWords.map = new HashMap<>();
+        AddWords.inverseMap = new HashMap<>();
     }
 
-    public static void main(String[] args) {
+    static {
+        commands.put("def", AddWords::defCommand);
+        commands.put("calc", AddWords::calcCommand);
+        commands.put("clear", AddWords::clearCommand);
+    }
 
-        List<String> data = FileReader.readFile(args);
+    public static void main(String[] args) throws IOException {
 
-        for (int i = 0; i < data.size(); i++) {
+        try (Scanner sc = new Scanner(System.in)) {
+            while (sc.hasNext()) {
 
-            String input = data.get(i);
-            String command = input.split("\\s+")[0];
+                String input = sc.nextLine();
 
-            if (command.equals("def")) {defCommand(input);
-            } else if (command.equals("calc")) {calcCommand(input);
-            } else if (command.equals("clear")) {clearCommand();
-            } else {}
+                if (input == null) {
+                    continue;
+                }
+
+                if (input.equalsIgnoreCase("exit")) {
+                    sc.close();
+                    break;
+                }
+
+                String command = input.split("\\s+")[0].trim();
+
+                if (commands.containsKey(command)) {
+                    commands.get(command).accept(input);
+                } else {
+                    sc.close();
+                    break;
+                }
+            }
         }
     }
 }
