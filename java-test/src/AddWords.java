@@ -1,4 +1,3 @@
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -8,14 +7,12 @@ import java.util.function.Consumer;
 class AddWords {
 
     static Map<String, Integer> map = new HashMap<>();
-    static Map<Integer, String> inverseMap = new HashMap<>();
     static Map<String, Consumer<String>> commands = new HashMap<>(); 
 
     static void defCommand(String input){
         String key = input.split("\\s+")[1];
         Integer value = Integer.parseInt(input.split("\\s+")[2]);
         map.put(key, value);
-        inverseMap.put(value, key);
     }
 
     static void calcCommand(String input){
@@ -23,6 +20,8 @@ class AddWords {
         String[] procedure = Arrays.copyOfRange(aux, 1, aux.length);
         String result;
 
+        // Iteration over the words to check if they are present in the variables map.
+        // If not, return to STDOUT an unknown calculation.  
         for (int k = 0; k < procedure.length; k += 2) {
             if (!map.containsKey(procedure[k])) {
                 System.out.println(String.join(" ", procedure) + " unknown");
@@ -30,8 +29,8 @@ class AddWords {
             }
         }
 
+        // Iteration over the operation signals, adding the next value on to previous one.
         Integer value = map.get(procedure[0]);
-
         for (int j = 1; j < procedure.length - 1; j += 2) {
             String operation = procedure[j];
             if (operation.equals("+")) {
@@ -39,6 +38,12 @@ class AddWords {
             } else if (operation.equals("-")) {
                 value -= map.get(procedure[j+1]);
             }
+        }
+
+        // Inverts the variables map, to get the word associated with the value.
+        Map<Integer, String> inverseMap = new HashMap<>();
+        for (Map.Entry<String, Integer> entry : map.entrySet()){
+            inverseMap.put(entry.getValue(), entry.getKey());
         }
 
         if (inverseMap.containsKey(value)) {
@@ -53,7 +58,6 @@ class AddWords {
 
     static void clearCommand(String input){
         AddWords.map = new HashMap<>();
-        AddWords.inverseMap = new HashMap<>();
     }
 
     static {
@@ -69,10 +73,7 @@ class AddWords {
 
                 String input = sc.nextLine();
 
-                if (
-                    input == null ||
-                    input.isEmpty()
-                ) {
+                if (input == null) {
                     sc.close();
                     break;
                 }

@@ -15,8 +15,6 @@ class Calculator:
         self.variables = {}
         self.inverse_map = {}
 
-        return
-
     def defCommand(self, line):
         _, key, value = line.split(" ")
         self.variables[key] = int(value)
